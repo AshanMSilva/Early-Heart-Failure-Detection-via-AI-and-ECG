@@ -1,25 +1,4 @@
 import pandas as pd
-from tensorflow.keras.models import load_model, Model
-#from tensorflow_addons.metrics import F1Score
-
-#f1 = F1Score(num_classes=1, average='micro', threshold=0.5, name='f1')
-
-#def load_feature_extractor_model(full_model_path):
-    #full_model = load_model(full_model_path, custom_objects={'f1': f1})
-    #if len(full_model.layers) == 0:
-     #   raise ValueError(f"No layers found in model loaded from: {full_model_path}")
-    #feature_model = full_model.layers[0]
-    
-    #return feature_model
-
-def load_2d_cnn_feature_extractor_model(full_model_path):
-    full_model = load_model(full_model_path)
-    if len(full_model.layers) == 0:
-        raise ValueError(f"No layers found in model loaded from: {full_model_path}")
-
-    feature_model = Model(inputs=full_model.input, outputs=full_model.layers[-2].output)
-    
-    return feature_model
 
 def get_important_metadata(dataset_path):
     df = pd.read_csv(dataset_path)
@@ -39,11 +18,7 @@ def extract_features_as_dataframe(model, data, index=None):
 def combine_features_and_metadata(features_df, metadata_df):
     return pd.concat([features_df, metadata_df], axis=1)
 
-def get_features_dataframe_with_metadata(full_model_path, dataset_path, ecg_signals, model_type = None):
-    if model_type == "2d_cnn":
-        feature_model = load_2d_cnn_feature_extractor_model(full_model_path)
-    else:
-        feature_model = load_feature_extractor_model(full_model_path)
+def get_features_dataframe_with_metadata(feature_model, dataset_path, ecg_signals, model_type = None):
     features_df = extract_features_as_dataframe(feature_model, ecg_signals)
     metadata_df = get_important_metadata(dataset_path)
     return combine_features_and_metadata(features_df, metadata_df)
